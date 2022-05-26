@@ -1,0 +1,97 @@
+version: '3.2'
+services:
+    db_auth:
+        container_name: db_auth
+        image: mysql
+        build:
+            context: ./db_auth
+            dockerfile: Dockerfile
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: "#@B5d1be"
+            MYSQL_DATABASE: auth
+            MYSQL_USER: "user1"
+            MYSQL_PASSWORD: "#@B5d1be"
+        volumes:
+            - volume_auth:/var/lib/mysql
+        ports:
+            - "9906:3306"
+
+    db_service:
+        container_name: db_service
+        image: mysql
+        build:
+            context: ./db_service
+            dockerfile: Dockerfile
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: "#@B5d1be"
+            MYSQL_DATABASE: store
+            MYSQL_USER: "user1"
+            MYSQL_PASSWORD: "#@B5d1be"
+        volumes:
+            - volume_service:/var/lib/mysql
+        ports:
+            - "9907:3306"
+
+    server_auth:
+        container_name: server_auth
+        build:
+            context: ./server_auth
+            dockerfile: Dockerfile
+        depends_on:
+            - db_auth
+        volumes:
+            - ./server_auth:/var/www/html/
+        ports:
+            - 8001:80
+
+    server_service:
+        container_name: server_service
+        build:
+            context: ./server_service
+            dockerfile: Dockerfile
+        depends_on:
+            - db_service
+        volumes:
+            - ./server_service:/var/www/html/
+        ports:
+            - 8002:80
+
+    server_loadbalancer:
+        container_name: server_loadbalancer
+        build: 
+            context: ./server_loadbalancer
+            dockerfile: Dockerfile
+        depends_on:
+            - server_auth
+            - server_service
+        volumes:
+            - ./server_loadbalancer:/var/www/html/
+        ports:
+            - 8000:80
+
+    phpmyadmin_auth:
+        container_name: phpmyadmin_auth
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - '8083:80'
+        restart: always
+        environment:
+            PMA_HOST: db_auth
+        depends_on:
+            - db_auth
+
+    phpmyadmin_service:
+        container_name: phpmyadmin_service
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - '8084:80'
+        restart: always
+        environment:
+            PMA_HOST: db_service
+        depends_on:
+            - db_service
+volumes:
+    volume_service:
+    volume_auth:

@@ -1,0 +1,31 @@
+Programmation Web
+Algorithmes et Structure de Données
+Intelligence Artificielle et Jeux
+Programmation impérative : langage C
+Projet Info3A S5
+Raisonnement et struct algébriques pour l'informatique I
+Raisonnement et struct algébriques pour l'informatique II
+Cryptographie
+Interface Matériel Logiciel I
+Interface Matériel Logiciel II
+Initiation Réseaux
+Logique
+Interaction Homme-Machine
+Anglais Info3A S5
+Anglais Info3A TOEIC S5
+Organisation et fonctionnement des entreprises
+Technologie de l'Info et la Com
+Stage Optionnel INFO Sem5
+Algorithmique de Graphes
+Programmation Objet (C++)
+Bases de données
+Automates, langages & compilation
+Analyse pour l'informatique
+Méthodes numériques
+Architecture des ordinateurs
+Projet Info3A S6
+Anglais Info3A S6
+Anglais Info3A TOEIC S6
+Gestion financière
+Module d'ouverture
+Stage obligatoire en milieu professionnel

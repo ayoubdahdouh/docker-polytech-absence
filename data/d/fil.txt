@@ -1,0 +1,8 @@
+Génie Biomédical (gbm)
+Génie Biologique (dbt)
+Génie Civil (gc)
+Génie Industriel (gii)
+Informatique (info)
+Matériaux (matx)
+Mécanique et énergétique (me)
+Microélectronique et télécommunications (mt)
