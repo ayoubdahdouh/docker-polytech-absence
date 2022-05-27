@@ -1,6 +1,6 @@
 <?php
 $host = "db_auth";
-$db = "polytech_absence_auth";
+$db = "auth";
 $user = "user1";
 $password = "#@B5d1be";
 $opt = array(
@@ -16,55 +16,10 @@ try {
     die('Erreur : ' . $e->getMessage());
 }
 
-
-
-function sqlInsert($sql, $val)
-{
-    global $pdo;
-    $query = $pdo->prepare($sql);
-    return $query->execute($val);
-}
-
-function sqlUpdate($sql, $val)
-{
-   return sqlInsert($sql, $val);
-}
-
-function sqlDelete($sql, $val)
-{
-   return sqlInsert($sql, $val);
-}
-
 function sqlQuery($sql, $val)
 {
     global $pdo;
     $query = $pdo->prepare($sql);
     $query->execute($val);
     return $query->fetch();
-}
-
-function sqlQueryAll($sql, $val)
-{
-    global $pdo;
-    $query = $pdo->prepare($sql);
-    $query->execute($val);
-    return $query->fetchAll();
-}
-
-function sqlStart()
-{
-    global $pdo;
-    $pdo->beginTransaction();
-}
-
-function sqlCommit()
-{
-    global $pdo;
-    $pdo->commit();
-}
-
-function sqlCancel()
-{
-    global $pdo;
-    $pdo->rollBack();
 }

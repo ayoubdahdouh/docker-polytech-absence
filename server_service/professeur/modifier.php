@@ -54,7 +54,7 @@ if (!$is_enregister) {
 	<div class="card mt-3">
 		<h5 class="card-header">Modifier l'absence</h5>
 		<div class="card-body">
-			<form method="POST" action="rechercher_cours.php">
+			<form method="POST" action="index.php?req=rechercherCours">
 				<div class="row g-3">
 					<div class="col-sm-4">
 						<div class="form-floating">
@@ -131,7 +131,7 @@ if (!$is_enregister) {
 				</table>
 
 				<div class="mt-2">
-					<a href="rechercher_cours.php" class="btn btn-secondary">Annuler</a>
+					<a href="index.php" class="btn btn-secondary">Annuler</a>
 					<button class="btn btn-primary" name="mise_a_jour" type="submit">Mise à jour</button>
 				</div>
 			</form>

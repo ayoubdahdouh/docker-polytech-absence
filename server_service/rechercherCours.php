@@ -1,8 +1,13 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+session_start();
+
+
+require_once("db_service.php");
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+
+$s = $_POST["session_id"];
+
 
 ?>
 <!DOCTYPE HTML>
@@ -23,9 +28,9 @@ ini_set('display_errors', 'on');
         <?php
         echo '<section class="py-5 text-center">';
 
-        if ($_SESSION['user']['role'] == 'p') {
+        if ($_SESSION[$s]['user']['role'] == 'p') {
             require_once("professeur/professeur.php");
-        } elseif ($_SESSION['user']['role'] == 'a') {
+        } elseif ($_SESSION[$s]['user']['role'] == 'a') {
             require_once("admin/admin.php");
         } else {
             echo "Vous n'avez pas le droit d'accéder accéder à cette page.";
@@ -33,7 +38,7 @@ ini_set('display_errors', 'on');
         echo '</section>';
 
         if (empty($errorMessage)) {
-            if ($_SESSION['user']['role'] == 'p') {
+            if ($_SESSION[$s]['user']['role'] == 'p') {
                 if (isset($_POST['ajouter']) || isset($_POST['enregistrer'])) {
                     require_once('professeur/ajouter.php');
                 } elseif (isset($_POST['rechercher'])  || isset($_POST['consulter'])) {
@@ -41,7 +46,7 @@ ini_set('display_errors', 'on');
                 } elseif (isset($_POST['modifier']) || isset($_POST['mise_a_jour'])) {
                     require_once('professeur/modifier.php');
                 }
-            } elseif ($_SESSION['user']['role'] == 'a') {
+            } elseif ($_SESSION[$s]['user']['role'] == 'a') {
                 if (
                     isset($_POST['ajouter']) ||
                     isset($_POST['enregistrer'])

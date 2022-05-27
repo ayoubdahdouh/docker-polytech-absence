@@ -1,7 +1,9 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+session_start();
 
+require_once("db_service.php");
+
+$s = $_POST["session_id"];
 $warningMessage = "";
 $successMessage = "";
 
@@ -24,12 +26,12 @@ if (isset($_POST["voir"])) {
     $prenom = $res['prenom'];
     $nom = $res['nom'];
 } else {
-    $login = $_SESSION['user']['login'];
-    $email = $_SESSION['user']['email'];
-    $role = $_SESSION['user']['role'];
-    $etat = $_SESSION['user']['etat'];
-    $prenom = $_SESSION['user']['prenom'];
-    $nom = $_SESSION['user']['nom'];
+    $login = $_SESSION[$s]['user']['login'];
+    $email = $_SESSION[$s]['user']['email'];
+    $role = $_SESSION[$s]['user']['role'];
+    $etat = $_SESSION[$s]['user']['etat'];
+    $prenom = $_SESSION[$s]['user']['prenom'];
+    $nom = $_SESSION[$s]['user']['nom'];
 }
 if (isset($_POST['enregister'])) {
     $mp = isset($_POST['password']) ? test_input($_POST['password']) : "";
@@ -42,7 +44,7 @@ if (isset($_POST['enregister'])) {
         $warningMessage = "Les deux champs de mot de passe ne sont pas identiques, veuillez réessayer";
     } else {
         $statement = $pdo->prepare("UPDATE utilisateur SET password=? WHERE id_u=?");
-        $exec = $statement->execute([$mp, $_SESSION['user']['id_u']]);
+        $exec = $statement->execute([$mp, $_SESSION[$s]['user']['id_u']]);
         if ($exec) {
             $successMessage = "Le mot de passe a été modifié avec succès";
         } else {
@@ -138,7 +140,7 @@ if (isset($_POST['enregister'])) {
                     echo "<div class=\"alert alert-warning\">" . $warningMessage . "</div>";
                 }
                 ?>
-                <form method="post" action="profile.php">
+                <form method="post" action="index.php?req=profile">
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <div class="form-floating">

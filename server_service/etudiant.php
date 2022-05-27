@@ -1,9 +1,13 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+session_start();
+
+require_once('helper.php');
+require_once("db_service.php");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+
+$s = $_POST["session_id"];
 
 if (
     !isset($_POST["ajouter_justificatif"]) &&
@@ -12,20 +16,20 @@ if (
     $warningMessage = "";
 
     if (isset($_POST["suivant"])) {
-        $i = $_SESSION["index"];
-        if ($i >= $_SESSION['max'] - 1) {
-            $i = $_SESSION["index"] = $_SESSION["max"] - 1;
+        $i = $_SESSION[$s]["index"];
+        if ($i >= $_SESSION[$s]['max'] - 1) {
+            $i = $_SESSION[$s]["index"] = $_SESSION[$s]["max"] - 1;
         } else {
             $i++;
-            $_SESSION["index"] = $i;
+            $_SESSION[$s]["index"] = $i;
         }
     } elseif (isset($_POST["precedent"])) {
-        $i = $_SESSION["index"];
+        $i = $_SESSION[$s]["index"];
         if ($i <= 0) {
-            $i = $_SESSION["index"] = 0;
+            $i = $_SESSION[$s]["index"] = 0;
         } else {
             $i--;
-            $_SESSION["index"] = $i;
+            $_SESSION[$s]["index"] = $i;
         }
     } else {
         $sql = "SELECT t2.date_heure, t2.id_a, t4.nom, t3.type, t1.justificatif, t5.status FROM historique t1 " .
@@ -34,16 +38,16 @@ if (
             "JOIN cours t4 ON t3.id_c=t4.id_c " .
             "LEFT JOIN justificatif t5 ON t5.id_j=t1.justificatif " .
             "WHERE t1.id_e=? ORDER BY t2.date_heure";
-        $matrix_abs = sqlQueryAll($sql, [$_SESSION["user"]["id_u"]]);
+        $matrix_abs = sqlQueryAll($sql, [$_SESSION[$s]["user"]["id_u"]]);
 
         if (empty($matrix_abs)) {
             $warningMessage = "Vous n'avez pas d'absence à afficher.";
         } else {
-            $_SESSION["taille"] = 8;
-            $_SESSION["matrix_abs"] = $matrix_abs;
-            $_SESSION["matrix_len"] = count($matrix_abs);
-            $_SESSION["max"] = ceil($_SESSION["matrix_len"] / $_SESSION["taille"]);
-            $_SESSION["index"] = 0;
+            $_SESSION[$s]["taille"] = 8;
+            $_SESSION[$s]["matrix_abs"] = $matrix_abs;
+            $_SESSION[$s]["matrix_len"] = count($matrix_abs);
+            $_SESSION[$s]["max"] = ceil($_SESSION[$s]["matrix_len"] / $_SESSION[$s]["taille"]);
+            $_SESSION[$s]["index"] = 0;
             $i = 0;
         }
     }
@@ -68,7 +72,7 @@ if (
             isset($_POST["ajouter_justificatif"]) ||
             isset($_POST["valider_justificatif"])
         ) {
-            require_once("upload_justificatif.php");
+            require_once("uploadJustificatif.php");
         } else {
 
             if (!empty($warningMessage)) {
@@ -85,16 +89,16 @@ if (
                         </tr>
                     </thead>
                     <tbody>
-                        <form action="etudiant.php" method="post" enctype="multipart/form-data">
+                        <form action="index.php?req=etudiant" method="post" enctype="multipart/form-data">
                             <?php
-                            for ($j = $i * $_SESSION["taille"]; ($j < ($i + 1) * $_SESSION["taille"]) && ($j < $_SESSION["matrix_len"]); $j++) {
+                            for ($j = $i * $_SESSION[$s]["taille"]; ($j < ($i + 1) * $_SESSION[$s]["taille"]) && ($j < $_SESSION[$s]["matrix_len"]); $j++) {
                                 // Nom et prénom
                                 echo "<tr><td>";
-                                echo $_SESSION["matrix_abs"][$j]['date_heure'];
+                                echo $_SESSION[$s]["matrix_abs"][$j]['date_heure'];
 
                                 // Absent(e)
                                 echo "</td><td>";
-                                switch ($_SESSION["matrix_abs"][$j]['type']) {
+                                switch ($_SESSION[$s]["matrix_abs"][$j]['type']) {
                                     case 'cm':
                                         echo "CM";
                                         break;
@@ -111,16 +115,16 @@ if (
 
                                 // Justificatif
                                 echo "</td><td>";
-                                echo $_SESSION["matrix_abs"][$j]['nom'];
+                                echo $_SESSION[$s]["matrix_abs"][$j]['nom'];
 
                                 // Absent(e)
                                 echo "</td><td>";
-                                if ($_SESSION["matrix_abs"][$j]["justificatif"]) {
-                                    if ($_SESSION["matrix_abs"][$j]["status"] == "e") {
+                                if ($_SESSION[$s]["matrix_abs"][$j]["justificatif"]) {
+                                    if ($_SESSION[$s]["matrix_abs"][$j]["status"] == "e") {
                                         echo "EN COURS";
-                                    } elseif ($_SESSION["matrix_abs"][$j]["status"] == "r") {
+                                    } elseif ($_SESSION[$s]["matrix_abs"][$j]["status"] == "r") {
                                         echo "REFUSE";
-                                    } else  {
+                                    } else {
                                         echo "OUI";
                                     }
                                 } else {
@@ -130,9 +134,9 @@ if (
                                 </td>
                                 <td>
                                     <?php
-                                    if (!$_SESSION["matrix_abs"][$j]["justificatif"] || $_SESSION["matrix_abs"][$j]["status"] == "r") {
+                                    if (!$_SESSION[$s]["matrix_abs"][$j]["justificatif"] || $_SESSION[$s]["matrix_abs"][$j]["status"] == "r") {
                                     ?>
-                                        <button type="submit" name="ajouter_justificatif" value="<?php echo $_SESSION["matrix_abs"][$j]["id_a"]; ?>" class="btn btn-primary btn-sm">Ajouter justificatif</button>
+                                        <button type="submit" name="ajouter_justificatif" value="<?php echo $_SESSION[$s]["matrix_abs"][$j]["id_a"]; ?>" class="btn btn-primary btn-sm">Ajouter justificatif</button>
                                     <?php
                                     }
                                     ?>
@@ -144,19 +148,19 @@ if (
                     </tbody>
                 </table>
                 <?php
-                if ($_SESSION["max"] > 1) {
+                if ($_SESSION[$s]["max"] > 1) {
                 ?>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                        <form action="etudiant.php" method="POST">
+                        <form action="index.php?req=etudiant" method="POST">
                             <nav>
                                 <ul class="pagination">
                                     <li class="page-item <?php echo ($i == 0) ? "disabled" : ""; ?>">
                                         <button class="page-link " type="submit" name="precedent">Précédente</button>
                                     </li>
                                     <li class="page-item disabled">
-                                        <a class="page-link" href="#"><?php echo ($i + 1) . " / " . $_SESSION["max"]; ?></a>
+                                        <a class="page-link" href="#"><?php echo ($i + 1) . " / " . $_SESSION[$s]["max"]; ?></a>
                                     </li>
-                                    <li class="page-item <?php echo ($i  == $_SESSION["max"] - 1) ? "disabled" : ""; ?>">
+                                    <li class="page-item <?php echo ($i  == $_SESSION[$s]["max"] - 1) ? "disabled" : ""; ?>">
                                         <button class="page-link" type="submit" name="suivant">Suivante</button>
                                     </li>
                                 </ul>

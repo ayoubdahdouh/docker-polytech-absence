@@ -10,7 +10,8 @@ if (empty($errorMessage)) {
     if (isset($_POST["consulter"])) {
         $id_e = intval($_POST['consulter']);
 
-        $sql = "SELECT t1.id_u, t1.login, t2.groupe, CONCAT(t1.prenom, ' ', t1.nom) AS prenom_nom FROM utilisateur t1 JOIN " .
+        // $sql = "SELECT t1.id_u, t1.login, t2.groupe, CONCAT(t1.prenom, ' ', t1.nom) AS prenom_nom FROM utilisateur t1 JOIN " .
+        $sql = "SELECT t1.id_u, t2.groupe, CONCAT(t1.prenom, ' ', t1.nom) AS prenom_nom FROM utilisateur t1 JOIN " .
             "etudiant t2 ON t1.id_u = t2.id_e WHERE t1.role='e' AND t1.id_u=?";
         $etudiant = sqlQuery($sql, [$id_e]);
 
@@ -23,8 +24,8 @@ if (empty($errorMessage)) {
             if (empty($cours)) {
                 $errorMessage = "L'étudiant avec cet identifiant n'est inscrit à aucun cours..";
             } else {
-                $_SESSION['re']["cours"] = $cours;
-                $_SESSION['re']["etudiant"] = $etudiant;
+                $_SESSION[$s]['re']["cours"] = $cours;
+                $_SESSION[$s]['re']["etudiant"] = $etudiant;
                 $id_c = 0;
             }
         }
@@ -35,16 +36,16 @@ if (empty($errorMessage)) {
     if (empty($errorMessage)) {
         if ($id_c == 0) {
             $tmp = [];
-            foreach ($_SESSION['re']["cours"] as $i => $c) {
+            foreach ($_SESSION[$s]['re']["cours"] as $i => $c) {
                 $tmp[$i] = $c["id_c"];
             }
 
             // tous les cours
             $sql = "SELECT DISTINCT id_n FROM enseignement WHERE id_c IN (" . implode(',', $tmp) . ")  AND groupe IN (?,0)";
-            $res = sqlQueryAll($sql, [$_SESSION['re']["etudiant"]["groupe"]]);
+            $res = sqlQueryAll($sql, [$_SESSION[$s]['re']["etudiant"]["groupe"]]);
         } else {
             $sql = "SELECT DISTINCT id_n FROM enseignement WHERE id_c=? AND groupe IN (?,0)";
-            $res = sqlQueryAll($sql, [$id_c, $_SESSION['re']["etudiant"]["groupe"]]);
+            $res = sqlQueryAll($sql, [$id_c, $_SESSION[$s]['re']["etudiant"]["groupe"]]);
         }
 
         $liste_id_n = [];
@@ -59,7 +60,7 @@ if (empty($errorMessage)) {
             "(SELECT t1.id_a, t2.id_e, t2.justificatif, t3.status FROM absence t1 JOIN historique t2 on t1.id_a=t2.id_a LEFT JOIN justificatif t3 ON t3.id_j=t2.justificatif WHERE t1.id_n IN (" . implode(',', $liste_id_n) . ") AND t2.id_e=?) AS T2 " .
             "ON T1.id_a=T2.id_a ORDER BY T1.date_heure;";
 
-        $matrix_abs = sqlQueryAll($sql, [$_SESSION['re']["etudiant"]["id_u"]]);
+        $matrix_abs = sqlQueryAll($sql, [$_SESSION[$s]['re']["etudiant"]["id_u"]]);
 
         if (count($matrix_abs) == 0) {
             $warningMessage = "Aucun enregistrement trouvé";
@@ -74,24 +75,25 @@ if (empty($errorMessage)) {
         <div class="row g-3">
             <div class="col-sm-6">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="identifiant" name="identifiant" placeholder="Identifiant" value="<?php echo $_SESSION['re']["etudiant"]["login"]; ?>" readonly="readonly">
+                    <!-- <input type="text" class="form-control" id="identifiant" name="identifiant" placeholder="Identifiant" value="<?php // echo $_SESSION[$s]['re']["etudiant"]["login"]; ?>" readonly="readonly"> -->
+                    <input type="text" class="form-control" id="identifiant" name="identifiant" placeholder="Identifiant" value="<?php echo $_SESSION[$s]['re']["etudiant"]["id_u"]; ?>" readonly="readonly">
                     <label for="identifiant">Identifiant</label>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="prenom_nom" name="prenom_nom" placeholder="Prénom Nom" value="<?php echo $_SESSION['re']["etudiant"]["prenom_nom"]; ?>" readonly="readonly">
+                    <input type="text" class="form-control" id="prenom_nom" name="prenom_nom" placeholder="Prénom Nom" value="<?php echo $_SESSION[$s]['re']["etudiant"]["prenom_nom"]; ?>" readonly="readonly">
                     <label for="prenom_nom">Prénom Nom</label>
                 </div>
             </div>
         </div>
-        <form method="POST" action="gestion_utilisateurs.php">
+        <form method="POST" action="index.php?req=gestionUtilisateurs">
             <div class="mt-3">
                 <div class="form-floating">
                     <select name="index" class="form-select" id="index" required>
                         <option value="0"> -- Tous les cours -- </option>
                         <?php
-                        foreach ($_SESSION['re']["cours"] as $cours) {
+                        foreach ($_SESSION[$s]['re']["cours"] as $cours) {
                             if ($cours["id_c"] == $id_c) {
                                 echo "<option value=\"" . $cours["id_c"] . "\" selected>" . $cours['nom'] . "</option>\n";
                             } else {
@@ -134,8 +136,8 @@ if (!empty($successMessage)) {
             </tr>
         </thead>
         <tbody>
-            <form method="POST" action="gestion_utilisateurs.php">
-                <input type="hidden" name="id_e" value="<?php echo  $_SESSION['re']["etudiant"]["id_u"]; ?>">
+            <form method="POST" action="index.php">
+                <input type="hidden" name="id_e" value="<?php echo  $_SESSION[$s]['re']["etudiant"]["id_u"]; ?>">
                 <?php
                 foreach ($matrix_abs as $abs) {
                     // Nom et prénom

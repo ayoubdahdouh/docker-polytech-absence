@@ -1,8 +1,11 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+session_start();
+
+require_once("db_service.php");
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+
+$s = $_POST["session_id"];
 
 $successMessage = "";
 $errorMessage = "";
@@ -91,7 +94,7 @@ if (empty($res)) {
                             </tr>
                         </thead>
                         <tbody>
-                            <form method="POST" action="notification.php">
+                            <form method="POST" action="index.php?rqe=notification">
                                 <?php
                                 foreach ($res as $r) {
                                     $sql = "SELECT * FROM justificatif WHERE id_j=?";

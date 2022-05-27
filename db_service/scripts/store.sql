@@ -34687,8 +34687,8 @@ CREATE TABLE `justificatif` (
   `id_j` int(11) NOT NULL DEFAULT '0',
   `id_a` int(11) NOT NULL,
   `id_e` int(11) NOT NULL,
-  `justificatif` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `status` enum('e','a','r') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
+  `justificatif` varchar(255)  DEFAULT NULL,
+  `status` enum('e','a','r')  NOT NULL
 );
 
 --
@@ -34707,7 +34707,7 @@ INSERT INTO `justificatif` (`id_j`, `id_a`, `id_e`, `justificatif`, `status`) VA
 
 CREATE TABLE `notification` (
   `id_i` int(11) NOT NULL DEFAULT '0',
-  `type` enum('justificatif') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `type` enum('justificatif')  NOT NULL,
   `arg1` int(11) DEFAULT NULL
 );
 

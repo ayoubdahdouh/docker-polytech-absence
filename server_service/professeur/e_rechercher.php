@@ -1,7 +1,8 @@
 <?php
 $errorMessage = "";
 if (!empty($identifiant)) {
-    $sql = "SELECT id_u, login, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE login=? AND role='e'";
+    // $sql = "SELECT id_u, login, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE login=? AND role='e'";
+    $sql = "SELECT id_u, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE login=? AND role='e'";
     $liste_etudiant = [sqlQuery($sql, [$identifiant])];
     if (empty($liste_etudiant)) {
         $errorMessage = "Cet identifiant n'existe pas.";
@@ -26,16 +27,18 @@ if (!empty($identifiant)) {
         foreach ($res as $i => $r) {
             $liste[$i] = $r["id_u"];
         }
-        if ($_SESSION['user']["role"] == 'p') {
+        if ($_SESSION[$s]['user']["role"] == 'p') {
             // professeur
-            $sql = "SELECT DISTINCT t1.id_u, login, CONCAT(t1.prenom, ' ', t1.nom) AS prenom_nom FROM utilisateur t1 " .
+            // $sql = "SELECT DISTINCT t1.id_u, login, CONCAT(t1.prenom, ' ', t1.nom) AS prenom_nom FROM utilisateur t1 " .
+            $sql = "SELECT DISTINCT t1.id_u, CONCAT(t1.prenom, ' ', t1.nom) AS prenom_nom FROM utilisateur t1 " .
                 "JOIN ametice t2 ON t1.id_u=t2.id_e " .
                 "JOIN enseignement t3 ON t2.id_c=t3.id_c " .
                 "WHERE t3.id_p=? AND t2.id_e IN  (" . implode(',', $liste) . ")";
-            $liste_etudiant = sqlQueryAll($sql, [$_SESSION['user']["id_u"]]);
+            $liste_etudiant = sqlQueryAll($sql, [$_SESSION[$s]['user']["id_u"]]);
         } else {
             // admin
-            $sql = "SELECT id_u,  login, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE id_u IN (" . implode(',', $liste) . ")";
+            // $sql = "SELECT id_u, login, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE id_u IN (" . implode(',', $liste) . ")";
+            $sql = "SELECT id_u, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE id_u IN (" . implode(',', $liste) . ")";
             $liste_etudiant = sqlQueryAll($sql, NULL);
         }
     }

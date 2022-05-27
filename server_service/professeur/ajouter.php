@@ -28,7 +28,7 @@ if (!$is_enregister || !empty($warningMessage)) {
 		<h5 class="card-header">Enregister l'absence</h5>
 		<div class="card-body">
 
-			<form method="POST" action="rechercher_cours.php">
+			<form method="POST" action="index.php?req=rechercherCours">
 				<div class="row g-3">
 					<!-- <div class="col-sm-6">
 						<div class="form-floating">
@@ -140,7 +140,7 @@ if (!$is_enregister || !empty($warningMessage)) {
 				</table>
 
 				<div class="mt-2">
-					<a href="rechercher_cours.php" class="btn btn-secondary">Annuler</a>
+					<a href="index.php" class="btn btn-secondary">Annuler</a>
 					<button class="btn btn-primary" name="enregistrer" type="submit">Enregistrer</button>
 				</div>
 			</form>

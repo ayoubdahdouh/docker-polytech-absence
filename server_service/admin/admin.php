@@ -16,25 +16,25 @@ if (isset($_POST["filtrer"])) {
     if (empty($id_f) || $annee < $mn || $annee > $mx) {
         $errorMessage = "Veuillez sélectionner la filière et l'année.";
     } else {
-        $_SESSION["rc"]["id_f"] = $id_f;
-        $_SESSION["rc"]["annee"] = $annee;
+        $_SESSION[$s]["rc"]["id_f"] = $id_f;
+        $_SESSION[$s]["rc"]["annee"] = $annee;
 
         // nom de filiere
         $sql = "select nom from filiere where id_f=?";
-        $res = sqlQuery($sql, [$_SESSION["rc"]["id_f"]]);
-        $_SESSION["rc"]["filiere_nom"]  = $res['nom'];
+        $res = sqlQuery($sql, [$_SESSION[$s]["rc"]["id_f"]]);
+        $_SESSION[$s]["rc"]["filiere_nom"]  = $res['nom'];
 
         $sql = "SELECT id_c, nom FROM cours WHERE id_f=? AND annee=?";
         $list_cours = sqlQueryAll($sql, [$id_f, $annee]);
-        $_SESSION["rc"]["list_cours"] = $list_cours;
+        $_SESSION[$s]["rc"]["list_cours"] = $list_cours;
 
         $sql = "SELECT DISTINCT type FROM enseignement WHERE id_c IN (SELECT id_c FROM cours WHERE id_f=? AND annee=?)";
         $list_types = sqlQueryAll($sql, [$id_f, $annee]);
-        $_SESSION["rc"]["list_types"] = $list_types;
+        $_SESSION[$s]["rc"]["list_types"] = $list_types;
 
         $sql = "SELECT DISTINCT groupe FROM enseignement WHERE id_c IN (SELECT id_c FROM cours WHERE id_f=? AND annee=?)";
         $list_groupes = sqlQueryAll($sql, [$id_f, $annee]);
-        $_SESSION["rc"]["list_groupes"] = $list_groupes;
+        $_SESSION[$s]["rc"]["list_groupes"] = $list_groupes;
     }
 } elseif (isset($_POST['rechercher']) || isset($_POST['ajouter'])) {
     $id_c = isset($_POST['cours']) ? intval($_POST['cours']) : 0;
@@ -47,20 +47,20 @@ if (isset($_POST["filtrer"])) {
     if ($id_c <= 0 || empty($type) || $groupe < 0) {
         $errorMessage = "Veuillez sélectionner le cours, le type et le groupe";
     } else {
-        $_SESSION["rc"]["id_c"] = $id_c;
-        $_SESSION["rc"]["type"] = $type;
-        $_SESSION["rc"]["groupe"] = $groupe;
+        $_SESSION[$s]["rc"]["id_c"] = $id_c;
+        $_SESSION[$s]["rc"]["type"] = $type;
+        $_SESSION[$s]["rc"]["groupe"] = $groupe;
 
 
 
         $sql = "select nom from cours where id_c=?";
-        $res = sqlQuery($sql, [$_SESSION["rc"]["id_c"]]);
-        $_SESSION["rc"]["cours_nom"] = $res['nom'];
+        $res = sqlQuery($sql, [$_SESSION[$s]["rc"]["id_c"]]);
+        $_SESSION[$s]["rc"]["cours_nom"] = $res['nom'];
     }
 }
 ?>
 
-<form method="POST" action="rechercher_cours.php">
+<form method="POST" action="index.php?req=rechercherCours">
     <div class="row py-lg-2">
         <div class="col-lg-12 col-md-8 mx-auto">
             <?php
@@ -119,7 +119,7 @@ if (isset($_POST["filtrer"])) {
                                 <option disabled>--- Vide ---</option>
                                 <?php
                                 foreach ($filieres as $fil) {
-                                    if ($_SESSION["rc"]["id_f"] == $fil['id_f']) {
+                                    if ($_SESSION[$s]["rc"]["id_f"] == $fil['id_f']) {
                                         echo "<option value=\"" . $fil['id_f'] . "\" selected>" . $fil['nom'] . "</option>";
                                     } else {
                                         echo "<option value=\"" . $fil['id_f'] . "\">" . $fil['nom'] . "</option>";
@@ -138,7 +138,7 @@ if (isset($_POST["filtrer"])) {
 
                                 <?php
                                 foreach ($annees as $an) {
-                                    if ($_SESSION["rc"]["annee"] == $an['annee']) {
+                                    if ($_SESSION[$s]["rc"]["annee"] == $an['annee']) {
                                         echo "<option value=\"" . $an['annee'] . "\" selected>" . $an['annee'] . "</option>";
                                     } else {
                                         echo "<option value=\"" . $an['annee'] . "\">" . $an['annee'] . "</option>";
@@ -154,7 +154,7 @@ if (isset($_POST["filtrer"])) {
                             <select name="cours" class="form-select" id="cours" required>
                                 <option disabled selected>--- Vide ---</option>
                                 <?php
-                                $list_cours = $_SESSION["rc"]["list_cours"];
+                                $list_cours = $_SESSION[$s]["rc"]["list_cours"];
                                 for ($i = 0; $i < count($list_cours); $i++) {
                                     echo "<option value=\"" . $list_cours[$i]['id_c'] . "\">" . $list_cours[$i]['nom'] . "</option>";
                                 }
@@ -169,7 +169,7 @@ if (isset($_POST["filtrer"])) {
                             <select name="type" class="form-select" id="type" required>
                                 <option disabled selected>--- Vide ---</option>
                                 <?php
-                                $list_types = $_SESSION["rc"]["list_types"];
+                                $list_types = $_SESSION[$s]["rc"]["list_types"];
                                 for ($i = 0; $i < count($list_types); $i++) {
                                     echo "<option value=\"" . $list_types[$i]['type'] . "\">" . $list_types[$i]['type'] . "</option>";
                                 }
@@ -183,7 +183,7 @@ if (isset($_POST["filtrer"])) {
                         <div class="form-floating">
                             <select name="groupe" class="form-select" id="groupe">
                                 <?php
-                                $list_groupes = $_SESSION["rc"]["list_groupes"];
+                                $list_groupes = $_SESSION[$s]["rc"]["list_groupes"];
                                 for ($i = 0; $i < count($list_groupes); $i++) {
                                     if ($list_groupes[$i]['groupe'] == 0) {
                                         echo "<option value=\"0\" selected>Tous les groupes</option>";

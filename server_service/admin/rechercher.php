@@ -7,15 +7,15 @@ if (isset($_POST["consulter"])) {
 
 	// id_n
 	$sql = "select id_n from enseignement where id_c=? and type=? and groupe=?";
-	$res = sqlQuery($sql, [$_SESSION["rc"]["id_c"], $_SESSION["rc"]["type"], $_SESSION["rc"]["groupe"]]);
+	$res = sqlQuery($sql, [$_SESSION[$s]["rc"]["id_c"], $_SESSION[$s]["rc"]["type"], $_SESSION[$s]["rc"]["groupe"]]);
 	$id_n = $res['id_n'];
 
 	// recherche toutes les absences
 	$sql = "SELECT id_a, date_heure FROM absence WHERE id_n=? ORDER BY id_a DESC";
 	$res = sqlQueryAll($sql, [$id_n]);
 	if (count($res) != 0) {
-		$_SESSION["rc"]["liste_id_a"] = $res;
-		$id_a = $_SESSION["rc"]["liste_id_a"][0]["id_a"];
+		$_SESSION[$s]["rc"]["liste_id_a"] = $res;
+		$id_a = $_SESSION[$s]["rc"]["liste_id_a"][0]["id_a"];
 	} else {
 		$warningMessage = "Aucun enregistrement trouvé";
 	}
@@ -24,14 +24,14 @@ if (isset($_POST["consulter"])) {
 if (!empty($warningMessage)) {
 	echo "<div class=\"alert alert-warning\">" . $warningMessage . "</div>";
 } else {
-	if ($_SESSION["rc"]["type"] == "cm") {
+	if ($_SESSION[$s]["rc"]["type"] == "cm") {
 		$sql = "select etu.id_u, etu.prenom_nom , abs.id_a, abs.justificatif, abs.status from" .
 			"(select t1.id_u, CONCAT(t1.prenom,\" \",t1.nom) as prenom_nom from utilisateur t1 join etudiant t2 on t1.id_u=t2.id_e join ametice t3 on t2.id_e=t3.id_e " .
 			"where t3.id_c=?) as etu left join " .
 			"(select t4.id_e, t4.id_a, t4.justificatif, t6.status from etudiant t5 join historique t4 on t5.id_e=t4.id_e left join justificatif t6 on t6.id_j=t4.justificatif where t4.id_a=?) as abs " .
 			"on etu.id_u=abs.id_e";
 
-		$matrix_abs = sqlQueryAll($sql, [$_SESSION["rc"]["id_c"], $id_a]);
+		$matrix_abs = sqlQueryAll($sql, [$_SESSION[$s]["rc"]["id_c"], $id_a]);
 	} else {
 		$sql = "select etu.id_u, etu.prenom_nom , abs.id_a, abs.justificatif, abs.status from" .
 			"(select t1.id_u, CONCAT(t1.prenom,\" \",t1.nom) as prenom_nom from utilisateur t1 join etudiant t2 on t1.id_u=t2.id_e join ametice t3 on t2.id_e=t3.id_e " .
@@ -39,7 +39,7 @@ if (!empty($warningMessage)) {
 			"(select t4.id_e, t4.id_a, t4.justificatif, t6.status from etudiant t5 join historique t4 on t5.id_e=t4.id_e left join justificatif t6 on t6.id_j=t4.justificatif where t4.id_a=?) as abs " .
 			"on etu.id_u=abs.id_e";
 
-		$matrix_abs = sqlQueryAll($sql, [$_SESSION["rc"]["id_c"], $_SESSION["rc"]["groupe"], $id_a]);
+		$matrix_abs = sqlQueryAll($sql, [$_SESSION[$s]["rc"]["id_c"], $_SESSION[$s]["rc"]["groupe"], $id_a]);
 	}
 
 ?>
@@ -51,49 +51,49 @@ if (!empty($warningMessage)) {
 			<div class="row g-3">
 				<div class="col-sm-6">
 					<div class="form-floating">
-						<input type="text" class="form-control" id="filiere" name="filiere_nom" placeholder="Filière" value="<?php echo $_SESSION["rc"]["filiere_nom"]; ?>" readonly="readonly">
+						<input type="text" class="form-control" id="filiere" name="filiere_nom" placeholder="Filière" value="<?php echo $_SESSION[$s]["rc"]["filiere_nom"]; ?>" readonly="readonly">
 						<label for="filiere">Filière</label>
 					</div>
 				</div>
 
 				<div class="col-sm-6">
 					<div class="form-floating">
-						<input type="text" class="form-control" id="annee" name="annee" placeholder="Année" value="<?php echo $_SESSION["rc"]["annee"]; ?>" readonly="readonly">
+						<input type="text" class="form-control" id="annee" name="annee" placeholder="Année" value="<?php echo $_SESSION[$s]["rc"]["annee"]; ?>" readonly="readonly">
 						<label for="annee">Année</label>
 					</div>
 				</div>
 				<div class="col-sm-4">
 					<div class="form-floating">
-						<input type="text" name="cours_id_c" value="<?php echo $_SESSION["rc"]["id_c"]; ?>" hidden>
-						<input type="text" class="form-control" id="cours" name="cours_nom" placeholder="Cours" value="<?php echo $_SESSION["rc"]["cours_nom"]; ?>" readonly="readonly">
+						<input type="text" name="cours_id_c" value="<?php echo $_SESSION[$s]["rc"]["id_c"]; ?>" hidden>
+						<input type="text" class="form-control" id="cours" name="cours_nom" placeholder="Cours" value="<?php echo $_SESSION[$s]["rc"]["cours_nom"]; ?>" readonly="readonly">
 						<label for="cours">Cours</label>
 					</div>
 				</div>
 
 				<div class="col-sm-4">
 					<div class="form-floating">
-						<input type="text" class="form-control" id="type" name="type" placeholder="Type" value="<?php echo $_SESSION["rc"]["type"]; ?>" readonly="readonly">
+						<input type="text" class="form-control" id="type" name="type" placeholder="Type" value="<?php echo $_SESSION[$s]["rc"]["type"]; ?>" readonly="readonly">
 						<label for="type">Type</label>
 					</div>
 				</div>
 
 				<div class="col-sm-4">
 					<div class="form-floating">
-						<input type="text" class="form-control" id="groupe" name="groupe" placeholder="Groupe" value="<?php if ($_SESSION["rc"]["groupe"] == 0) {
+						<input type="text" class="form-control" id="groupe" name="groupe" placeholder="Groupe" value="<?php if ($_SESSION[$s]["rc"]["groupe"] == 0) {
 																															echo "Tous les groupes";
 																														} else {
-																															echo $_SESSION["rc"]["groupe"];
+																															echo $_SESSION[$s]["rc"]["groupe"];
 																														} ?>" readonly="readonly">
 						<label for="groupe">Groupe</label>
 					</div>
 				</div>
 
 				<div class="col-sm-12">
-					<form method="POST" action="rechercher_cours.php">
+					<form method="POST" action="index.php?req=rechercherCours">
 						<div class="form-floating">
 							<select name="index" class="form-select" id="index" required>
 								<?php
-								foreach ($_SESSION["rc"]["liste_id_a"] as $abs) {
+								foreach ($_SESSION[$s]["rc"]["liste_id_a"] as $abs) {
 									if ($abs["id_a"] ==	$id_a) {
 										echo "<option value=\"" . $abs["id_a"] . "\" selected>" . $abs['date_heure'] . "</option>\n";
 									} else {

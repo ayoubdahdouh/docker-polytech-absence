@@ -1,9 +1,14 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+session_start();
+
+
+require_once("db_service.php");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+
+$s = $_POST["session_id"];
+
 
 $errorMessage = "";
 $successMessage = "";
@@ -25,7 +30,7 @@ $warningMessage = "";
     <?php include("menu.php"); ?>
 
     <main class="container">
-        <form method="POST" action="gestion_utilisateurs.php">
+        <form method="POST" action="index.php?req=gestionUtilisateurs">
             <section class="py-5 text-center">
                 <div class="row py-lg-2">
                     <div class="col-lg-12 col-md-8 mx-auto">
@@ -80,7 +85,7 @@ $warningMessage = "";
             isset($_POST["ajouter_justificatif"]) ||
             isset($_POST["valider_justificatif"])
         ) {
-            require_once("upload_justificatif.php");
+            require_once("uploadJustificatif.php");
         } elseif (
             isset($_POST["modifier"]) ||
             isset($_POST["modifier_enregister"])

@@ -21,7 +21,7 @@ if (empty($date) || $heure < 0 || $heure > 23 || $minutes < 0 || $minutes > 59) 
     $warningMessage = "Veuillez sélectionner la date, l'heure et les minutes correctement svp !";
 } else {
     $sql = "select id_n from enseignement where id_p=? and id_c=? and type=? and groupe=?";
-    $res = sqlQuery($sql, [$_SESSION['user']['id_u'], $cours_id_c, $type, $groupe]);
+    $res = sqlQuery($sql, [$_SESSION[$s]['user']['id_u'], $cours_id_c, $type, $groupe]);
     $en_id_n = $res['id_n'];
 
     $sql = "select max(id_a) as id FROM absence";
@@ -38,7 +38,7 @@ if (empty($date) || $heure < 0 || $heure > 23 || $minutes < 0 || $minutes > 59) 
 
     if (count($res) == 0) {
         $sql = "INSERT INTO absence (id_a, id_n, date_heure, nbr_absents, auteur) VALUES (?, ?, ?, ?, ?)";
-        $res = sqlInsert($sql, [$ab_max_id_a, $en_id_n, "$date $heure:$minutes:00", $nbr_absents, $_SESSION["user"]["id_u"]]);
+        $res = sqlInsert($sql, [$ab_max_id_a, $en_id_n, "$date $heure:$minutes:00", $nbr_absents, $_SESSION[$s]["user"]["id_u"]]);
 
         if ($res) {
             $sql = "INSERT INTO historique (id_e, id_a, justificatif) VALUES (?, ?, NULL)";

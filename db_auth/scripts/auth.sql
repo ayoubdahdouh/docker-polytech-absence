@@ -28,8 +28,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `comptes` (
   `id_u` int(11) NOT NULL DEFAULT '0',
-  `login` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
+  `login` varchar(50)  NOT NULL,
+  `password` varchar(50)  NOT NULL
 );
 
 --

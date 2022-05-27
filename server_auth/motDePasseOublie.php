@@ -21,7 +21,7 @@ session_destroy();
 <body class="text-center">
 
     <main class="form-signin">
-        <form method="post" action="mot_de_passe_oublie.php">
+        <form method="post" action="motDePasseOublie.php">
             <h1 class="h3 mb-3 fw-normal">Réinitialiser le mot de passe</h1>
 
             <?php if (!empty($erreurLogin)) { ?>

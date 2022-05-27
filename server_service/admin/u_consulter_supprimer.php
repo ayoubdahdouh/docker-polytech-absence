@@ -1,6 +1,6 @@
 <?php
 $id_a = intval($_POST["supprimer_absence"]);
-$id_e = $_SESSION['re']["etudiant"]["id_u"];
+$id_e = $_SESSION[$s]['re']["etudiant"]["id_u"];
 $sql = "SELECT justificatif FROM historique WHERE id_a=? AND id_e=?";
 $justificatif = sqlQuery($sql, [$id_a, $id_e]);
 
@@ -20,7 +20,7 @@ if (sqlDelete($sql, [$id_a, $id_e])) {
     if (sqlUpdate($sql, [$id_a])) {
         $successMessage = "L'absence est bien supprimée";
         $id_c = 0;
-        $_POST["consulter"] = $_SESSION['re']["etudiant"]["id_u"];
+        $_POST["consulter"] = $_SESSION[$s]['re']["etudiant"]["id_u"];
         unset($_POST["supprimer_absence"]);
     } else {
         $errorMessage = "Une erreur s'est produite, veuillez réessayer";

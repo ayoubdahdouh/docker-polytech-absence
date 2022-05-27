@@ -36,7 +36,7 @@ if (!empty($errorMessage)) {
 } else {
 ?>
 
-    <form method="POST" action="gestion_utilisateurs.php">
+    <form method="POST" action="index.php?req=gestionUtilisateurs">
         <table class="table table-hover table-bordered mt-4">
             <thead class="table-light">
                 <tr>
@@ -52,7 +52,8 @@ if (!empty($errorMessage)) {
                 <?php
                 foreach ($liste_etudiant as $etudiant) {
                     echo "<tr><td>";
-                    echo $etudiant['login'];
+                    // echo $etudiant['login'];
+                    echo $etudiant['id_u'];
                     echo "</td><td>";
                     echo $etudiant['prenom_nom'];
                     echo "</td><td>";

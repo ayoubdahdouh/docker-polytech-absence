@@ -1,18 +1,23 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+session_start();
+
+
+require_once("db_service.php");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+
+$s = $_POST["session_id"];
+
 
 if (isset($_POST["rechercher"])) {
     $identifiant = isset($_POST['identifiant']) ? trim($_POST['identifiant']) : "";
     $prenom  = isset($_POST['prenom']) ? trim($_POST['prenom']) : "";
     $nom  = isset($_POST['nom']) ? trim($_POST['nom']) : "";
 
-    if ($_SESSION['user']['role'] == 'p') {
+    if ($_SESSION[$s]['user']['role'] == 'p') {
         require_once("professeur/e_rechercher.php");
-    } elseif ($_SESSION['user']['role'] == 'a') {
+    } elseif ($_SESSION[$s]['user']['role'] == 'a') {
         require_once("professeur/e_rechercher.php");
     } else {
         $errorMessage = "Vous n'avez pas le droit d'accéder accéder à cette page.";
@@ -22,7 +27,8 @@ if (isset($_POST["rechercher"])) {
 } elseif (isset($_POST["voir"])) {
     $id_e = intval($_POST['voir']);
 
-    $sql = "SELECT id_u, login, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE role='e' AND id_u=?";
+    // $sql = "SELECT id_u, login, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE role='e' AND id_u=?";
+    $sql = "SELECT id_u, CONCAT(prenom, ' ', nom) AS prenom_nom FROM utilisateur WHERE role='e' AND id_u=?";
     $etudiant = sqlQuery($sql, [$id_e]);
 
     if (empty($etudiant)) {
@@ -30,13 +36,13 @@ if (isset($_POST["rechercher"])) {
     } else {
         $sql = "SELECT DISTINCT t1.id_c, t1.nom FROM cours t1 JOIN ametice t2 ON t1.id_c=t2.id_c " .
             "JOIN enseignement t3 ON t1.id_c=t3.id_c WHERE t3.id_p=? and t2.id_e=?";
-        $cours = sqlQueryAll($sql, [$_SESSION["user"]["id_u"], $etudiant['id_u']]);
+        $cours = sqlQueryAll($sql, [$_SESSION[$s]["user"]["id_u"], $etudiant['id_u']]);
 
         if (empty($cours)) {
             $errorMessage = "L'étudiant avec cet identifiant n'est pas inscrit à aucun de votre cours.";
         } else {
-            $_SESSION['re']["cours"] = $cours;
-            $_SESSION['re']["etudiant"] = $etudiant;
+            $_SESSION[$s]['re']["cours"] = $cours;
+            $_SESSION[$s]['re']["etudiant"] = $etudiant;
             $id_c = $cours[0]["id_c"];
         }
     }
@@ -44,13 +50,13 @@ if (isset($_POST["rechercher"])) {
 
 if ((isset($_POST["voir"]) || isset($_POST["consulter"])) && empty($errorMessage)) {
     $sql = "SELECT groupe FROM etudiant WHERE id_e=?";
-    $groupe = sqlQuery($sql, [$_SESSION['re']["etudiant"]["id_u"]]);
+    $groupe = sqlQuery($sql, [$_SESSION[$s]['re']["etudiant"]["id_u"]]);
 
     $sql = "SELECT nom FROM cours WHERE id_c=?";
     $cm = sqlQuery($sql, [$id_c]);
     // id_n
     $sql = "SELECT DISTINCT id_n, type FROM enseignement WHERE id_p=? AND id_c=? AND groupe IN (?,0)";
-    $res = sqlQueryAll($sql, [$_SESSION['user']['id_u'], $id_c, $groupe["groupe"]]);
+    $res = sqlQueryAll($sql, [$_SESSION[$s]['user']['id_u'], $id_c, $groupe["groupe"]]);
 
     $liste_id_n = [];
     foreach ($res as $i => $r) {
@@ -62,7 +68,7 @@ if ((isset($_POST["voir"]) || isset($_POST["consulter"])) && empty($errorMessage
         "LEFT JOIN " .
         "(SELECT t1.id_a, t1.date_heure, t2.id_e, t2.justificatif FROM absence t1 JOIN historique t2 on t1.id_a=t2.id_a WHERE t1.id_n IN (" . implode(',', $liste_id_n) . ") AND t2.id_e=?) AS T2 " .
         "ON T1.id_a=T2.id_a ORDER BY T1.date_heure;";
-    $matrix_abs = sqlQueryAll($sql, [$_SESSION['re']["etudiant"]["id_u"]]);
+    $matrix_abs = sqlQueryAll($sql, [$_SESSION[$s]['re']["etudiant"]["id_u"]]);
 
     if (count($matrix_abs) == 0) {
         $warningMessage = "Aucun d'enregistrment trouvé";
@@ -84,7 +90,7 @@ if ((isset($_POST["voir"]) || isset($_POST["consulter"])) && empty($errorMessage
 <body>
     <?php include("menu.php"); ?>
     <main class="container">
-        <form method="POST" action="rechercher_etudiant.php">
+        <form method="POST" action="index.php?req=rechercherEtudiant">
             <section class="py-5 text-center">
                 <div class="row py-lg-2">
                     <div class="col-lg-12 col-md-8 mx-auto">
@@ -127,7 +133,7 @@ if ((isset($_POST["voir"]) || isset($_POST["consulter"])) && empty($errorMessage
                     echo "<div class=\"alert alert-danger\">" . $errorMessage . "</div>";
                 } elseif (isset($_POST["rechercher"])) {
             ?>
-                    <form method="POST" action="rechercher_etudiant.php">
+                    <form method="POST" action="index.php?req=rechercherEtudiant">
                         <table class="table table-hover table-bordered mt-4">
                             <thead>
                                 <tr>
@@ -142,7 +148,8 @@ if ((isset($_POST["voir"]) || isset($_POST["consulter"])) && empty($errorMessage
                                 foreach ($liste_etudiant as $etudiant) {
                                     // Identifiant
                                     echo "<tr><td>";
-                                    echo $etudiant['login'];
+                                    // echo $etudiant['login'];
+                                    echo $etudiant['id_u'];
                                     // Nom et prénom
                                     echo "</td><td>";
                                     echo $etudiant['prenom_nom'];
@@ -168,25 +175,26 @@ if ((isset($_POST["voir"]) || isset($_POST["consulter"])) && empty($errorMessage
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="identifiant" name="identifiant" placeholder="Identifiant" value="<?php echo $_SESSION['re']["etudiant"]["login"]; ?>" readonly="readonly">
+                                        <!-- <input type="text" class="form-control" id="identifiant" name="identifiant" placeholder="Identifiant" value="<?php // echo $_SESSION[$s]['re']["etudiant"]["login"]; ?>" readonly="readonly"> -->
+                                        <input type="text" class="form-control" id="identifiant" name="identifiant" placeholder="Identifiant" value="<?php echo $_SESSION[$s]['re']["etudiant"]["id_u"]; ?>" readonly="readonly">
                                         <label for="identifiant">Identifiant</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="prenom_nom" name="prenom_nom" placeholder="Prénom Nom" value="<?php echo $_SESSION['re']["etudiant"]["prenom_nom"]; ?>" readonly="readonly">
+                                        <input type="text" class="form-control" id="prenom_nom" name="prenom_nom" placeholder="Prénom Nom" value="<?php echo $_SESSION[$s]['re']["etudiant"]["prenom_nom"]; ?>" readonly="readonly">
                                         <label for="prenom_nom">Prénom Nom</label>
                                     </div>
                                 </div>
                             </div>
-                            <form method="POST" action="rechercher_etudiant.php">
+                            <form method="POST" action="index.php?req=rechercherEtudiant">
                                 <div class="mt-3">
                                     <label for="historique" class="form-label">Cours: </label>
                                     <div class="input-group" id="historique">
                                         <select class="form-select" id="historique" name="index">
                                             <?php
 
-                                            foreach ($_SESSION['re']["cours"] as $cours) {
+                                            foreach ($_SESSION[$s]['re']["cours"] as $cours) {
                                                 if ($abs["id_c"] ==    $id_c) {
                                                     echo "<option value=\"" . $cours["id_c"] . "\" selected>" . $cours['nom'] . "</option>\n";
                                                 } else {

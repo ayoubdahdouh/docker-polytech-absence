@@ -1,25 +1,26 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+
+require_once("db_service.php");
 
 if (isset($_POST["voir"])) {
     $id_u = intval($_POST["voir"]);
-    $sql = "SELECT id_u, login, email, role, etat, prenom, nom FROM utilisateur WHERE id_u=?";
+    // $sql = "SELECT id_u, login, email, role, etat, prenom, nom FROM utilisateur WHERE id_u=?";
+    $sql = "SELECT id_u, email, role, etat, prenom, nom FROM utilisateur WHERE id_u=?";
     $res = sqlQuery($sql, [$id_u]);
 
-    $login = $res['login'];
+    $login = $res['id_u'];
     $email = $res['email'];
     $role = $res['role'];
     $etat = $res['etat'];
     $prenom = $res['prenom'];
     $nom = $res['nom'];
 } else {
-    $login = $_SESSION['user']['login'];
-    $email = $_SESSION['user']['email'];
-    $role = $_SESSION['user']['role'];
-    $etat = $_SESSION['user']['etat'];
-    $prenom = $_SESSION['user']['prenom'];
-    $nom = $_SESSION['user']['nom'];
+    $login = $_SESSION[$s]['user']['id_u'];
+    $email = $_SESSION[$s]['user']['email'];
+    $role = $_SESSION[$s]['user']['role'];
+    $etat = $_SESSION[$s]['user']['etat'];
+    $prenom = $_SESSION[$s]['user']['prenom'];
+    $nom = $_SESSION[$s]['user']['nom'];
 }
 ?>
 

@@ -1,6 +1,6 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+
+require_once("db_service.php");
 
 $warningMessage = "";
 $successMessage = "";
@@ -30,17 +30,17 @@ if (isset($_POST['modifier_enregister'])) {
     ) {
         $errorMessage = "Veuillez remplir les champs suivants : nom, prénom, profession et courriel.";
     } else if (
-        strcmp($email, $_SESSION["email"]) != 0 ||
-        strcmp($role, $_SESSION["role"]) != 0 ||
-        strcmp($prenom, $_SESSION["prenom"]) != 0 ||
-        strcmp($nom, $_SESSION["nom"]) != 0
+        strcmp($email, $_SESSION[$s]["email"]) != 0 ||
+        strcmp($role, $_SESSION[$s]["role"]) != 0 ||
+        strcmp($prenom, $_SESSION[$s]["prenom"]) != 0 ||
+        strcmp($nom, $_SESSION[$s]["nom"]) != 0
     ) {
         $sql = "UPDATE utilisateur SET role=?, prenom=?, nom=?, email=? WHERE id_u=?";
-        $exec = sqlUpdate($sql, [$role, $prenom, $nom, $email, $_SESSION["id_u"]]);
+        $exec = sqlUpdate($sql, [$role, $prenom, $nom, $email, $_SESSION[$s]["id_u"]]);
 
         if ($exec) {
             $successMessage = "Les modifications ont été effectuées avec succès.";
-            $_POST["modifier"] = $_SESSION["id_u"];
+            $_POST["modifier"] = $_SESSION[$s]["id_u"];
             unset($_POST["modifier_enregister"]);
         } else {
             $warningMessage = "Les modifications ont échoué, veuillez réessayer!";
@@ -55,7 +55,7 @@ if (isset($_POST['modifier_enregister'])) {
             $warningMessage = "Les deux champs de mot de passe ne sont pas identiques, veuillez réessayer";
         } else {
             $statement = $pdo->prepare("UPDATE utilisateur SET password=? WHERE id_u=?");
-            $exec = $statement->execute([$password, $_SESSION['id_u']]);
+            $exec = $statement->execute([$password, $_SESSION[$s]['id_u']]);
             if ($exec) {
                 $successMessage = "Le mot de passe a été changé avec succès.";
             } else {
@@ -68,16 +68,17 @@ if (isset($_POST['modifier_enregister'])) {
 if (isset($_POST["modifier"])) {
     $id_u = intval($_POST["modifier"]);
 
-    $sql = "SELECT id_u, login, email, role, etat, prenom, nom FROM utilisateur WHERE id_u=?";
+    // $sql = "SELECT id_u, login, email, role, etat, prenom, nom FROM utilisateur WHERE id_u=?";
+    $sql = "SELECT id_u, email, role, etat, prenom, nom FROM utilisateur WHERE id_u=?";
     $res = sqlQuery($sql, [$id_u]);
 
-    $_SESSION["id_u"] = $res['id_u'];
-    $_SESSION["login"] = $res['login'];
-    $_SESSION["email"] = $res['email'];
-    $_SESSION["role"] = $res['role'];
-    $_SESSION["etat"] = $res['etat'];
-    $_SESSION["prenom"] = $res['prenom'];
-    $_SESSION["nom"] = $res['nom'];
+    $_SESSION[$s]["id_u"] = $res['id_u'];
+    // $_SESSION[$s]["login"] = $res['login'];
+    $_SESSION[$s]["email"] = $res['email'];
+    $_SESSION[$s]["role"] = $res['role'];
+    $_SESSION[$s]["etat"] = $res['etat'];
+    $_SESSION[$s]["prenom"] = $res['prenom'];
+    $_SESSION[$s]["nom"] = $res['nom'];
 }
 
 $sql = "SELECT DISTINCT role FROM utilisateur";
@@ -94,13 +95,13 @@ if (!empty($errorMessage)) {
 <div class="card mt-3">
     <h5 class="card-header">Coordonnées du profil</h5>
     <div class="card-body">
-        <form method="post" action="gestion_utilisateurs.php">
+        <form method="post" action="index.php?req=gestionUtilisateurs">
             <div class="row g-3">
 
 
                 <div class="col-sm-6">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="identifiant" name="identifiant" value="<?php echo $_SESSION["login"] ?>" disabled>
+                        <input type="text" class="form-control" id="identifiant" name="identifiant" value="<?php echo $_SESSION[$s]["id_u"] ?>" disabled>
                         <label for="identifiant" class="form-label">Identifiant</label>
                     </div>
                 </div>
@@ -109,7 +110,7 @@ if (!empty($errorMessage)) {
                         <select class="form-select" name="role" id="role" aria-label="Floating label select example">
                             <?php
                             foreach ($liste_profession as $prof) {
-                                if ($prof["role"] == $_SESSION["role"]) {
+                                if ($prof["role"] == $_SESSION[$s]["role"]) {
                                     echo "<option value=\"" . $prof["role"] . "\" selected>";
                                 } else {
                                     echo "<option value=\"1\">";
@@ -140,19 +141,19 @@ if (!empty($errorMessage)) {
                 </div>
                 <div class="col-sm-6">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="prenom" name="prenom" value="<?php echo $_SESSION["prenom"] ?>">
+                        <input type="text" class="form-control" id="prenom" name="prenom" value="<?php echo $_SESSION[$s]["prenom"] ?>">
                         <label for="prneom" class="form-label">Prénom</label>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="nom" name="nom" value="<?php echo $_SESSION["nom"] ?>">
+                        <input type="text" class="form-control" id="nom" name="nom" value="<?php echo $_SESSION[$s]["nom"] ?>">
                         <label for="nom" class="form-label">Nom</label>
                     </div>
                 </div>
                 <div class="col-sm-12">
                     <div class="form-floating">
-                        <input type="text" class="form-control" name="email" id="email" value="<?php echo $_SESSION["email"] ?>">
+                        <input type="text" class="form-control" name="email" id="email" value="<?php echo $_SESSION[$s]["email"] ?>">
                         <label for="email" class="form-label">Adresse</label>
                     </div>
                 </div>
@@ -171,8 +172,8 @@ if (!empty($errorMessage)) {
                 </div>
 
                 <div class="col-sm-12 ">
-					<a href="gestion_utilisateurs.php" class="btn btn-secondary">Annuler</a>
-                    <button class="btn btn-success mt-2" name="modifier_enregister" type="submit">Enregistrer</button>
+					<a href="index.php?req=gestionUtilisateurs" class="btn btn-danger">Annuler</a>
+                    <button class="btn btn-success" name="modifier_enregister" type="submit">Enregistrer</button>
                 </div>
             </div>
         </form>

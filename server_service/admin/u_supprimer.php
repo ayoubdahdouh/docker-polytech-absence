@@ -14,7 +14,7 @@ if (isset($_POST["supprimer_confirmer"])) {
 }
 $id_u = intval($_POST["supprimer"]);
 
-$sql = "SELECT prenom, nom FROM utilisateur WHERE id_u=?";
+$sql = "SELECT id_u, prenom, nom FROM utilisateur WHERE id_u=?";
 $usr = sqlQuery($sql, [$id_u]);
 ?>
 <div class="card">
@@ -22,7 +22,7 @@ $usr = sqlQuery($sql, [$id_u]);
         <h5 class="card-title">Supprimer Compte</h5>
         <p class="card-text">vous voulez vraiment supprimer le profile de <b><?php echo $usr["prenom"] . " " . $usr["nom"]; ?> </b>?</p>
 
-        <a href="gestion_utilisateurs.php" class="btn btn-secondary">Annuler</a>
+        <a href="index.php?req=gestionUtilisateurs" class="btn btn-danger">Annuler</a>
         <button type="submit" name="supprimer_confirmer" value="<?php echo $usr['id_u']; ?>" class="btn btn-danger">Supprimer</button>
 
     </div>

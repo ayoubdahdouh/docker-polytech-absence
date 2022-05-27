@@ -2,13 +2,13 @@
 $ajoute_absense = false;
 
 $sql = "select distinct t2.id_c, t2.nom from enseignement t1 inner join cours t2 on t2.id_c=t1.id_c where t1.id_p=?";
-$list_cours = sqlQueryAll($sql, [$_SESSION['user']['id_u']]);
+$list_cours = sqlQueryAll($sql, [$_SESSION[$s]['user']['id_u']]);
 
 $sql = "select distinct type from enseignement where id_p=?";
-$list_types = sqlQueryAll($sql, [$_SESSION['user']['id_u']]);
+$list_types = sqlQueryAll($sql, [$_SESSION[$s]['user']['id_u']]);
 
 $sql = "select distinct groupe from enseignement where id_p=?";
-$list_groupes = sqlQueryAll($sql, [$_SESSION['user']['id_u']]);
+$list_groupes = sqlQueryAll($sql, [$_SESSION[$s]['user']['id_u']]);
 
 $errorMessage = "";
 
@@ -35,7 +35,7 @@ if (isset($_POST['rechercher']) || isset($_POST['ajouter'])) {
 
 ?>
 
-<form method="POST" action="rechercher_cours.php">
+<form method="POST" action="index.php?req=rechercherCours">
     <div class="row py-lg-2">
         <div class="col-lg-12 col-md-8 mx-auto">
             <?php

@@ -1,6 +1,6 @@
 <?php
-require_once('identifier.php');
-require_once("connexiondb.php");
+
+require_once("db_service.php");
 ?>
 <!DOCTYPE HTML>
 <HTML>
@@ -18,11 +18,11 @@ require_once("connexiondb.php");
 
     <div class="container">
         <?php
-        if ($_SESSION['user']['role'] == 'etudiant') {
+        if ($_SESSION[$s]['user']['role'] == 'etudiant') {
             require_once("etudiant.php");
-        } elseif ($_SESSION['user']['role'] == 'professeur') {
+        } elseif ($_SESSION[$s]['user']['role'] == 'professeur') {
             require_once("professeur.php");
-        } elseif ($_SESSION['user']['role'] == 'admin') {
+        } elseif ($_SESSION[$s]['user']['role'] == 'admin') {
             require_once("admin.php");
         } else {
             echo "Vous n'avez pas le droit d'accéder accéder à cette page.";

@@ -1,6 +1,6 @@
 <?php
 $host = "db_service";
-$db = "polytech_absence_service";
+$db = "store";
 $user = "user1";
 $password = "#@B5d1be";
 $opt = array(
